@@ -294,6 +294,26 @@ Here are the basic rules:
   1. If a job has a :roles arg but that role isn't in the whenever_roles list,
      that job *will not* be deployed to any server.
 
+### Kamal Integration
+
+When using [Kamal](https://kamal-deploy.org/) to deploy your application, ensure cron is available in your Docker image. E.g. 
+
+```docker
+# Dockerfile
+RUN apt-get update -qq && \
+  apt-get install --no-install-recommends -y cron
+```
+
+Then add a new role to your `config/deploy.yml`:
+
+```yml
+servers:
+  whenever:
+    hosts:
+      - 0.0.0.0
+    cmd: 'bash -c "bin/bundle exec whenever --update-crontab && cron -f"'
+```  
+
 ### RVM Integration
 
 If your production environment uses RVM (Ruby Version Manager) you will run into a gotcha that causes your cron jobs to hang.  This is not directly related to Whenever, and can be tricky to debug.  Your .rvmrc files must be trusted or else the cron jobs will hang waiting for the file to be trusted.  A solution is to disable the prompt by adding this line to your user rvm file in `~/.rvmrc`
